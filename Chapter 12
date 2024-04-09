@@ -144,3 +144,56 @@ knife ec2 server create -I ami-0abcdef1234567890 -f t2.micro -S mykeypair -i ~/.
 # 3.	Manage cloud resources: Some cloud providers have their Chef Supermarket cookbooks, like the aws cookbook for AWS resources. With these, you can manage cloud-specific resources in your recipes.
 
 
+# Below is an example implementation of an automated remediation strategy using Chef:
+ruby
+# Recipe to remediate configuration drift by ensuring a package is at the desired version
+package 'nginx' do
+  version '1.18.0'
+  action :install
+end
+
+# Notification mechanism to alert administrators of successful remediation
+log 'Configuration drift remediated: nginx package updated to version 1.18.0' do
+  level :info
+  notifies :run, 'execute[notify_admins]'
+end
+
+# Execute notification command to alert administrators
+execute 'notify_admins' do
+  command '/usr/local/bin/send_notification.sh'
+  action :nothing
+end
+
+# Best Practices for Writing Error-Resilient Chef Code
+# Handle Exceptions Gracefully: Use begin-rescue-end blocks to catch exceptions and handle them gracefully.
+ruby
+begin
+  # Chef resources or code block that may raise exceptions
+rescue => e
+  log "An error occurred: #{e.message}" do
+    level :error
+  end
+  # Take appropriate action to handle the error
+end
+
+# Validate Inputs and Conditions: Validate inputs, conditions, and assumptions before executing critical operations. This helps prevent invalid data or configurations from causing unexpected failures. 
+ruby
+unless node['app']['port'].is_a?(Integer) && node['app']['port'] > 0 && node['app']['port'] < 65536
+  log "Invalid port number: #{node['app']['port']}. Port must be a valid integer between 1 and 65535." do
+    level :error
+  end
+  return
+end
+
+# Use Resource Notifications: Leverage resource notifications to trigger actions based on resource convergence status.
+ruby
+service 'nginx' do
+  action :start
+  notifies :run, 'execute[notify_admins]', :immediately
+end
+
+execute 'notify_admins' do
+  command '/usr/local/bin/send_notification.sh'
+  action :nothing
+end
+
