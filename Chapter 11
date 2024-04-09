@@ -1,1 +1,38 @@
-# There is no Executable code in the chapter 11
+# Verify Puppet Agent Connectivity:
+# Implementation:: Check the Puppet agent configuration file (/etc/puppetlabs/puppet/puppet.conf) to ensure the correct Puppet master server address is specified:
+[main]
+server = puppet.example.com
+Test connectivity to the Puppet master server:
+bash
+ping puppet.example.com
+telnet puppet.example.com 8140
+
+# Check Puppet Agent Status:
+# Implementation: Run the following command to check the status of the Puppet agent service:
+bash
+sudo systemctl status puppet
+
+# Validate Puppet Manifests and Modules:
+# Implementation: Validate the syntax of Puppet manifests using the following command:
+bash
+puppet parser validate /path/to/manifest.pp
+
+# Debug Puppet Manifests and Modules:
+# Implementation: Run the Puppet agent in debug mode to get detailed output:
+bash
+puppet agent --test –debug
+
+# Verify Puppet Master Configuration:
+# Implementation:
+Check the Puppet master configuration file (/etc/puppetlabs/puppet/puppet.conf) for accuracy.
+
+#Check Puppet Certificates:
+# Implementation: List pending certificate signing requests:
+bash
+puppet cert list
+
+#Sign pending certificate requests on the Puppet master:
+Bash
+puppet cert sign <AGENT_HOSTNAME>
+
+
